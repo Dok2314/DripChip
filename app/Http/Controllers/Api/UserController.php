@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\UserLoginRequest;
 use App\Http\Requests\Api\UserRegistrationRequest;
+use App\Models\Account;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends BaseApiController
@@ -27,6 +30,10 @@ class UserController extends BaseApiController
             'password' => Hash::make($request->password),
         ]);
 
+        Account::create([
+            'user_id' => $user->id,
+        ]);
+
         $response = [
             'id' => $user->id,
             'firstName' => $user->firstName,
@@ -35,5 +42,16 @@ class UserController extends BaseApiController
         ];
 
         return $this->sendResponse($response,"User: $user->firstName was successfuly created!", 201);
+    }
+
+    public function login(UserLoginRequest $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        $token = $user->createToken('token')->plainTextToken;
+
+        if(!$user) return $this->sendError('User not found!');
+
+        return $this->sendResponse($token,'User successfuly loged in!', 201);
     }
 }

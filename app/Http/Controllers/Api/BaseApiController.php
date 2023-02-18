@@ -12,7 +12,7 @@ class BaseApiController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function sendResponse($result, $message, $code)
+    public function sendResponse($result, $message, $code = 200)
     {
         $response = [
             'success' => true,
