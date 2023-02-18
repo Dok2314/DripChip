@@ -14,7 +14,7 @@ class AccountController extends BaseApiController
             return $this->sendError('Incorrect accountId', [],400);
         }
 
-        $account = Account::findOrFail($accountId);
+        $account = Account::find($accountId);
 
         if($account) {
             $user = $account->user;
@@ -29,6 +29,6 @@ class AccountController extends BaseApiController
             return $this->sendResponse($response, 'Account has been successfully received');
         }
 
-        return $this->sendError('Account with this accountId not found');
+        return $this->sendError('Account with accountId = ' . $accountId . ' not found');
     }
 }
