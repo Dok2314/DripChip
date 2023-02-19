@@ -26,4 +26,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('{accountId}', [ApiControllers\AccountController::class, 'updateAccount']);
         Route::delete('{accountId}', [ApiControllers\AccountController::class, 'deleteAccount']);
     });
+
+    Route::group(['prefix' => 'locations'], function () {
+        Route::post('/', [ApiControllers\LocationController::class, 'createLocation']);
+    });
 });
