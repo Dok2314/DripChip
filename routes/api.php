@@ -23,5 +23,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::group(['prefix' => 'accounts'], function () {
         Route::get('search', [ApiControllers\AccountController::class, 'searchUserByAccount']);
         Route::get('{accountId}', [ApiControllers\AccountController::class, 'getInfo']);
+        Route::put('{accountId}', [ApiControllers\AccountController::class, 'updateAccount']);
     });
 });
