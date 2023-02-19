@@ -39,4 +39,70 @@ class LocationController extends BaseApiController
 
         return $this->sendResponse($response, 'Location point successfuly created!');
     }
+
+    public function getInfo($locationId)
+    {
+        if(is_null($locationId) || $locationId <= 0) {
+            return $this->sendError('Incorrect locationId!');
+        }
+
+        $locationPoint = LocationPoint::find($locationId);
+
+        if($locationPoint) {
+            $response = [
+                'id' => $locationPoint->id,
+                'latitude' => $locationPoint->latitude,
+                'longitude' => $locationPoint->longitude,
+            ];
+
+            return $this->sendResponse($response, 'Location Point successfully received!');
+        }
+
+        return $this->sendError('Location Point with locationId = ' . $locationId . ' not found!');
+    }
+
+    public function updateLocation($locationId, Request $request)
+    {
+        if(is_null($locationId) || $locationId <= 0) {
+            return $this->sendError('Incorrect pointId!');
+        }
+
+        if(is_null($request->latitude) || $request->latitude < -90 || $request->latitude > 90) {
+            return $this->sendError('Incorrect latitude!');
+        }
+
+        if(is_null($request->longitude) || $request->longitude < -180 || $request->longitude > 180) {
+            return $this->sendError('Incorrect longitude!');
+        }
+
+        $locationPoint = LocationPoint::find($locationId);
+
+        $existLocationPoint = LocationPoint::where('latitude', $request->latitude)
+            ->where('longitude', $request->longitude)->first();
+
+        if(isset($existLocationPoint) && $existLocationPoint->id != $locationId) {
+            return $this->sendError(
+                sprintf(
+                'Location Point with latitude = %s and longitude = %s  already exists!',
+                    $request->latitude, $request->longitude)
+            );
+        }
+
+        if($locationPoint) {
+            $locationPoint->update([
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
+            ]);
+
+            $response = [
+                'id' => $locationPoint->id,
+                'latitude' => $locationPoint->latitude,
+                'longitude' => $locationPoint->longitude,
+            ];
+
+            return $this->sendResponse($response, 'Location Point successfully updated!');
+        }
+
+        return $this->sendError('Location Point with pointId = ' . $locationId . ' not found');
+    }
 }
