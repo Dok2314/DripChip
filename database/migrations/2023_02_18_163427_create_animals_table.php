@@ -24,6 +24,10 @@ return new class extends Migration
                 ->constrained('accounts')
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
+            $table->foreignId('location_point_id')
+                ->constrained('location_points')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
             $table->dateTime('chippingDateTime');
             $table->dateTime('deathDateTime')->default(null);
             $table->timestamps();

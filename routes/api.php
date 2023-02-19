@@ -31,5 +31,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::post('/', [ApiControllers\LocationController::class, 'createLocation']);
         Route::get('{locationId}', [ApiControllers\LocationController::class, 'getInfo']);
         Route::put('{locationId}', [ApiControllers\LocationController::class, 'updateLocation']);
+        Route::delete('{locationId}', [ApiControllers\LocationController::class, 'deleteLocation']);
     });
 });

@@ -105,4 +105,25 @@ class LocationController extends BaseApiController
 
         return $this->sendError('Location Point with pointId = ' . $locationId . ' not found');
     }
+
+    public function deleteLocation($locationId)
+    {
+        if(is_null($locationId) || $locationId <= 0) {
+            return $this->sendError('Incorrect pointId');
+        }
+
+        $location = LocationPoint::find($locationId);
+
+        if(isset($location) && $location->animals->count() > 0) {
+            return $this->sendError('You can\'t delete the location because it has animals!');
+        }
+
+        if($location) {
+            $location->delete();
+
+            return $this->sendResponse([],'Location Point was successfully deleted!');
+        }
+
+        return $this->sendError('Location Point with pointId = ' . $locationId . ' not found!');
+    }
 }

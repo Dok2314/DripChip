@@ -13,4 +13,9 @@ class LocationPoint extends Model
         'latitude',
         'longitude',
     ];
+
+    public function animals()
+    {
+        return $this->hasMany(Animal::class);
+    }
 }
