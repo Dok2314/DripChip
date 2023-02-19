@@ -48,9 +48,9 @@ class UserController extends BaseApiController
     {
         $user = User::where('email', $request->email)->first();
 
-        $token = $user->createToken('token')->plainTextToken;
-
         if(!$user) return $this->sendError('User not found!');
+
+        $token = $user->createToken('token')->plainTextToken;
 
         return $this->sendResponse($token,'User successfuly loged in!', 201);
     }

@@ -7,6 +7,7 @@ use App\Http\Requests\Api\AccountUpdateRequest;
 use App\Models\Account;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AccountController extends BaseApiController
 {
@@ -91,7 +92,7 @@ class AccountController extends BaseApiController
                 'firstName' => $request->firstName,
                 'lastName' => $request->lastName,
                 'email' => $request->email,
-                'password' => $request->password,
+                'password' => Hash::make($request->password),
             ]);
 
             $response = [
@@ -105,5 +106,22 @@ class AccountController extends BaseApiController
         }
 
         return $this->sendError('Failed to update user!');
+    }
+
+    public function deleteAccount($accountId)
+    {
+        if($accountId <= 0 || is_null($accountId)) {
+            return $this->sendError('Incorrect accountId', [],400);
+        }
+
+        $account = Account::find($accountId);
+
+        if($account) {
+            $account->delete();
+
+            return $this->sendResponse([],'Account has been successfully deleted!');
+        }
+
+        return $this->sendError('Account with id = ' . $accountId . ' not found!');
     }
 }

@@ -24,5 +24,6 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('search', [ApiControllers\AccountController::class, 'searchUserByAccount']);
         Route::get('{accountId}', [ApiControllers\AccountController::class, 'getInfo']);
         Route::put('{accountId}', [ApiControllers\AccountController::class, 'updateAccount']);
+        Route::delete('{accountId}', [ApiControllers\AccountController::class, 'deleteAccount']);
     });
 });
