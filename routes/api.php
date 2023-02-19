@@ -20,5 +20,8 @@ Route::post('registration', [ApiControllers\UserController::class, 'registration
 Route::post('login', [ApiControllers\UserController::class, 'login'])->name('api.login');
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
-    Route::get('/accounts/{accountId}', [ApiControllers\AccountController::class, 'getInfo']);
+    Route::group(['prefix' => 'accounts'], function () {
+        Route::get('search', [ApiControllers\AccountController::class, 'searchUserByAccount']);
+        Route::get('{accountId}', [ApiControllers\AccountController::class, 'getInfo']);
+    });
 });
