@@ -3,13 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\LocationCreateRequest;
+use App\Http\Requests\Api\LocationRequest;
 use App\Models\LocationPoint;
 use Illuminate\Http\Request;
 
 class LocationController extends BaseApiController
 {
-    public function createLocation(LocationCreateRequest $request)
+    public function createLocation(LocationRequest $request)
     {
         if(is_null($request->latitude) || $request->latitude < -90 || $request->latitude > 90) {
             return $this->sendError('Incorrect latitude!');
@@ -37,7 +37,7 @@ class LocationController extends BaseApiController
             'longitude' => $locationPoint->longitude,
         ];
 
-        return $this->sendResponse($response, 'Location point successfuly created!');
+        return $this->sendResponse($response, 'Location point successfully created!', 201);
     }
 
     public function getInfo($locationId)
@@ -61,7 +61,7 @@ class LocationController extends BaseApiController
         return $this->sendError('Location Point with locationId = ' . $locationId . ' not found!');
     }
 
-    public function updateLocation($locationId, Request $request)
+    public function updateLocation($locationId, LocationRequest $request)
     {
         if(is_null($locationId) || $locationId <= 0) {
             return $this->sendError('Incorrect pointId!');
@@ -88,26 +88,22 @@ class LocationController extends BaseApiController
             return $this->sendError(
                 sprintf(
                 'Location Point with latitude = %s and longitude = %s  already exists!',
-                    $request->latitude, $request->longitude)
-            );
+                    $request->latitude, $request->longitude
+                ),[],409);
         }
 
-        if($locationPoint) {
-            $locationPoint->update([
-                'latitude' => $request->latitude,
-                'longitude' => $request->longitude,
-            ]);
+        $locationPoint->update([
+            'latitude' => $request->latitude,
+            'longitude' => $request->longitude,
+        ]);
 
-            $response = [
-                'id' => $locationPoint->id,
-                'latitude' => $locationPoint->latitude,
-                'longitude' => $locationPoint->longitude,
-            ];
+        $response = [
+            'id' => $locationPoint->id,
+            'latitude' => $locationPoint->latitude,
+            'longitude' => $locationPoint->longitude,
+        ];
 
-            return $this->sendResponse($response, 'Location Point successfully updated!');
-        }
-
-        return $this->sendError('Location Point with pointId = ' . $locationId . ' not found');
+        return $this->sendResponse($response, 'Location Point successfully updated!');
     }
 
     public function deleteLocation($locationId)
@@ -122,16 +118,12 @@ class LocationController extends BaseApiController
             return $this->sendError('Location Point with id = ' . $locationId . ' not found!');
         }
 
-        if(isset($location) && $location->animals->count() > 0) {
+        if($location->animals->count() > 0) {
             return $this->sendError('You can\'t delete the location because it has animals!',[], 400);
         }
 
-        if($location) {
-            $location->delete();
+        $location->delete();
 
-            return $this->sendResponse([],'Location Point was successfully deleted!');
-        }
-
-        return $this->sendError('Location Point with pointId = ' . $locationId . ' not found!');
+        return $this->sendResponse([],'Location Point was successfully deleted!');
     }
 }

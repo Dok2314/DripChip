@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class LocationCreateRequest extends FormRequest
+class AnimalTypeRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class LocationCreateRequest extends FormRequest
     public function rules()
     {
         return [
-            'latitude' => ['required'],
-            'longitude' => ['required'],
+            'type' => ['required']
         ];
     }
 }

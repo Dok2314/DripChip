@@ -33,4 +33,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::put('{locationId}', [ApiControllers\LocationController::class, 'updateLocation']);
         Route::delete('{locationId}', [ApiControllers\LocationController::class, 'deleteLocation']);
     });
+
+    Route::group(['prefix' => 'animals/types'], function () {
+        Route::post('/', [ApiControllers\AnimalTypeController::class, 'createAnimalType']);
+        Route::get('{typeId}', [ApiControllers\AnimalTypeController::class, 'getInfo']);
+        Route::put('{typeId}', [ApiControllers\AnimalTypeController::class, 'updateAnimalType']);
+        Route::delete('{typeId}', [ApiControllers\AnimalTypeController::class, 'deleteAnimalType']);
+    });
 });
