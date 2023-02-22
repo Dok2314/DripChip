@@ -23,7 +23,7 @@ class LocationController extends BaseApiController
             ->where('longitude', $request->longitude)->first();
 
         if($existLocationPoint) {
-            return $this->sendError('This location point already exist!');
+            return $this->sendError('This location point already exist!',[],409);
         }
 
         $locationPoint = LocationPoint::create([

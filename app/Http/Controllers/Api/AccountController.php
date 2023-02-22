@@ -73,17 +73,27 @@ class AccountController extends BaseApiController
 
     public function updateAccount($accountId, AccountUpdateRequest $request)
     {
+        $user = auth()->user();
+
         if($accountId <= 0 || is_null($accountId)) {
             return $this->sendError('Incorrect accountId', [],400);
         }
 
         $account = Account::find($accountId);
 
+        if(is_null($account)) {
+            return $this->sendError('Account not found', [],403);
+        }
+
+        if($account && !$user->accounts->contains($account)) {
+            return $this->sendError('You are trying to update an account that is not your own',[],403);
+        }
+
         if($account) {
             $existUser = User::where('email', $request->email)->first();
 
             if($existUser) {
-                return $this->sendError('User with this email address already exist!');
+                return $this->sendError('Account with this email address already exist!',[],409);
             }
 
             $user = $account->user;
@@ -102,7 +112,7 @@ class AccountController extends BaseApiController
                 'email' => $user->email,
             ];
 
-            return $this->sendResponse($response,'User successfully updated!');
+            return $this->sendResponse($response,'Account successfully updated!');
         }
 
         return $this->sendError('Failed to update user!');
@@ -110,11 +120,17 @@ class AccountController extends BaseApiController
 
     public function deleteAccount($accountId)
     {
+        $user = auth()->user();
+
         if($accountId <= 0 || is_null($accountId)) {
             return $this->sendError('Incorrect accountId', [],400);
         }
 
         $account = Account::find($accountId);
+
+        if($account && !$user->accounts->contains($account)) {
+            return $this->sendError('You are trying to delete an account that is not your own',[],403);
+        }
 
         if($account) {
             $account->delete();
