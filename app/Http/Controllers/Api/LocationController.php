@@ -118,8 +118,12 @@ class LocationController extends BaseApiController
 
         $location = LocationPoint::find($locationId);
 
+        if(!$location) {
+            return $this->sendError('Location Point with id = ' . $locationId . ' not found!');
+        }
+
         if(isset($location) && $location->animals->count() > 0) {
-            return $this->sendError('You can\'t delete the location because it has animals!');
+            return $this->sendError('You can\'t delete the location because it has animals!',[], 400);
         }
 
         if($location) {
