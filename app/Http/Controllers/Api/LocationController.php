@@ -77,6 +77,10 @@ class LocationController extends BaseApiController
 
         $locationPoint = LocationPoint::find($locationId);
 
+        if(!$locationPoint) {
+            return $this->sendError('Location Point with id = ' . $locationId . ' not found!');
+        }
+
         $existLocationPoint = LocationPoint::where('latitude', $request->latitude)
             ->where('longitude', $request->longitude)->first();
 
