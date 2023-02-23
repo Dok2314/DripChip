@@ -254,4 +254,23 @@ class AnimalController extends BaseApiController
 
         return $this->sendResponse($response,'Animal successfully updated!');
     }
+
+    public function deleteAnimal($animalId)
+    {
+        if(is_null($animalId) || $animalId <= 0) {
+            return $this->sendError('Incorrect animalId', [],400);
+        }
+
+        // TODO: Животное покинуло локацию чипирования, при этом есть другие посещенные точки
+
+        $animal = Animal::find($animalId);
+
+        if(is_null($animal)) {
+            return $this->sendError('Animal with animalId = ' . $animalId . ' not found!');
+        }
+
+        $animal->delete();
+
+        return $this->sendResponse([],'Animal successfully deleted!');
+    }
 }

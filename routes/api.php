@@ -45,6 +45,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         Route::get('search', [ApiControllers\AnimalController::class, 'searchAnimal']);
         Route::get('{animalId}', [ApiControllers\AnimalController::class, 'getInfo']);
         Route::put('{animalId}', [ApiControllers\AnimalController::class, 'updateAnimal']);
+        Route::delete('{animalId}', [ApiControllers\AnimalController::class, 'deleteAnimal']);
         Route::post('/', [ApiControllers\AnimalController::class, 'createAnimal']);
     });
 });
