@@ -92,7 +92,7 @@ class AccountController extends BaseApiController
         if($account) {
             $existUser = User::where('email', $request->email)->first();
 
-            if($existUser) {
+            if($existUser && $existUser->id != $accountId) {
                 return $this->sendError('Account with this email address already exist!',[],409);
             }
 

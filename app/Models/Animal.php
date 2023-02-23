@@ -11,15 +11,13 @@ class Animal extends Model
 
     protected $table = 'animals';
 
-    protected $dateFormat = \DateTime::ISO8601;
-
     protected $casts = [
         'chippingDateTime' => 'datetime',
         'deathDateTime' => 'datetime',
     ];
 
     protected $fillable = [
-        'weight', 'length', 'height', 'gender', 'lifeStatus', 'cipperId',
+        'weight', 'length', 'height', 'gender', 'lifeStatus', 'chipperId',
         'location_point_id', 'chippingDateTime', 'deathDateTime',
     ];
 

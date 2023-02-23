@@ -29,7 +29,7 @@ return new class extends Migration
                 ->cascadeOnUpdate()
                 ->cascadeOnDelete();
             $table->dateTime('chippingDateTime');
-            $table->dateTime('deathDateTime')->default(null);
+            $table->dateTime('deathDateTime')->nullable();
             $table->timestamps();
         });
     }
