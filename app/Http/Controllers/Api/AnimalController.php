@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\AnimalRequest;
+use App\Http\Requests\Api\AnimalUpdateRequest;
 use App\Models\Account;
 use App\Models\Animal;
 use App\Models\AnimalType;
@@ -18,6 +19,11 @@ class AnimalController extends BaseApiController
         "MALE",
         "FEMALE",
         "OTHER",
+    ];
+
+    const LIFE_STATUSES = [
+        "ALIVE",
+        "DEAD",
     ];
 
     public function getInfo($animalId)
@@ -52,7 +58,7 @@ class AnimalController extends BaseApiController
 
     public function searchAnimal(Request $request)
     {
-
+        dd('test');
     }
 
     public function createAnimal(AnimalRequest $request)
@@ -152,6 +158,100 @@ class AnimalController extends BaseApiController
             'deathDateTime' => $animal->deathDateTime,
         ];
 
-        return $this->sendResponse($response,[],201);
+        return $this->sendResponse($response,'Animal successfully created!',201);
+    }
+
+    public function updateAnimal($animalId, AnimalUpdateRequest $request)
+    {
+        if(is_null($animalId) || $animalId <= 0) {
+            return $this->sendError('Incorrect animalId',[],400);
+        }
+
+        if(is_null($request->weight) || $request->weight <= 0) {
+            return $this->sendError('Incorrect weight',[],400);
+        }
+
+        if(is_null($request->length) || $request->length <= 0) {
+            return $this->sendError('Incorrect length',[],400);
+        }
+
+        if(is_null($request->height) || $request->height <= 0) {
+            return $this->sendError('Incorrect height',[],400);
+        }
+
+        if(!in_array($request->gender, self::GENDERS)) {
+            return $this->sendError('Incorrect gender!',[],400);
+        }
+
+        if(!in_array($request->lifeStatus, self::LIFE_STATUSES)) {
+            return $this->sendError('Incorrect lifeStatus!',[],400);
+        }
+
+        if(is_null($request->chipperId) || $request->chipperId <= 0) {
+            return $this->sendError('Incorrect chipperId',[],400);
+        }
+
+        if(is_null($request->chippingLocationId) || $request->chippingLocationId <= 0) {
+            return $this->sendError('Incorrect chippingLocationId',[],400);
+        }
+
+        $animal = Animal::find($animalId);
+
+        if(is_null($animal)) {
+            return $this->sendError('Animal with id = ' . $animalId . ' not found.',[],400);
+        }
+
+        $account = Account::find($request->chipperId);
+
+        if(is_null($account)) {
+            return $this->sendError('Account with id = ' . $request->chipperId . ' not found.',[],400);
+        }
+
+        $locationPoint = LocationPoint::find($animal->location_point_id);
+
+        if(is_null($locationPoint)) {
+            return $this->sendError('Location Point with id = ' . $animal->location_point_id . ' not found.',[],400);
+        }
+
+        if($animal->lifeStatus == 'DEAD' && $request->lifeStatus == 'ALIVE') {
+            return $this->sendError('You cannot set this lifeStatus to an animal because it is dead.',[],400);
+        }
+
+        // TODO:
+//        if() {
+//            return $this->sendError('The new chipping point is the same as the first visited location point!',[],400);
+//        }
+
+        $animal->update([
+            'weight' => $request->weight,
+            'length' => $request->length,
+            'height' => $request->height,
+            'gender' => $request->gender,
+            'lifeStatus' => $request->lifeStatus,
+            'chipperId' => $request->chipperId,
+            'chippingLocationId' => $request->chippingLocationId,
+        ]);
+
+        if($request->lifeStatus == 'DEAD' && $animal->lifeStatus == 'ALIVE') {
+            $animal->deathDateTime = now();
+            $animal->save();
+        }
+
+        $response = [
+            'id' => $animal->id,
+            'animalTypes' => $animal->types->pluck('id')->toArray(),
+            'weight' => $animal->weight,
+            'length' => $animal->length,
+            'height' => $animal->height,
+            'gender' => $animal->gender,
+            'lifeStatus' => $animal->lifeStatus,
+            'chippingDateTime' => $animal->chippingDateTime ? Carbon::parse($animal->chippingDateTime)->format('Y-m-d\TH:i:sO') : '',
+            'chipperId' => $animal->chipperId,
+            'chippingLocationId' => $animal->location_point_id,
+            'visitedLocations' => $animal->visitedLocations->pluck('id')->toArray(),
+            'deathDateTime' => $animal->deathDateTime ? Carbon::parse($animal->deathDateTime)->format('Y-m-d\TH:i:sO') : null,
+        ];
+
+        return $this->sendResponse($response,'Animal successfully updated!');
     }
 }
