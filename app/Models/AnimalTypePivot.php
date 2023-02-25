@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class AnimalTypePivot extends Model
 {
     use HasFactory;
+
+    protected $table = 'animal_type';
 }
