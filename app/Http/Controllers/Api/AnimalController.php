@@ -15,17 +15,6 @@ use Illuminate\Http\Request;
 
 class AnimalController extends BaseApiController
 {
-    const GENDERS = [
-        "MALE",
-        "FEMALE",
-        "OTHER",
-    ];
-
-    const LIFE_STATUSES = [
-        "ALIVE",
-        "DEAD",
-    ];
-
     public function getInfo($animalId)
     {
         if(is_null($animalId) || $animalId <= 0) {
@@ -84,7 +73,7 @@ class AnimalController extends BaseApiController
             return $this->sendError('Incorrect height!',[],400);
         }
 
-        if(is_null($request->gender) || !in_array($request->gender, self::GENDERS)) {
+        if(is_null($request->gender) || !in_array($request->gender, Animal::getGenders())) {
             return $this->sendError('Incorrect gender!',[],400);
         }
 
@@ -153,11 +142,11 @@ class AnimalController extends BaseApiController
             return $this->sendError('Incorrect height',[],400);
         }
 
-        if(!in_array($request->gender, self::GENDERS)) {
+        if(!in_array($request->gender, Animal::getGenders())) {
             return $this->sendError('Incorrect gender!',[],400);
         }
 
-        if(!in_array($request->lifeStatus, self::LIFE_STATUSES)) {
+        if(!in_array($request->lifeStatus, Animal::getLifeStatuses())) {
             return $this->sendError('Incorrect lifeStatus!',[],400);
         }
 

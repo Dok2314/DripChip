@@ -7,6 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class Animal extends Model
 {
+    const GENDERS = [
+        "MALE",
+        "FEMALE",
+        "OTHER",
+    ];
+
+    const LIFE_STATUSES = [
+        "ALIVE",
+        "DEAD",
+    ];
+
     use HasFactory;
 
     protected $table = 'animals';
@@ -34,5 +45,15 @@ class Animal extends Model
     public function visitedLocations()
     {
         return $this->belongsToMany(LocationPoint::class, 'animal_visited_locations', 'animal_id','location_point_id');
+    }
+
+    public static function getGenders(): array
+    {
+        return self::GENDERS;
+    }
+
+    public static function getLifeStatuses(): array
+    {
+        return self::LIFE_STATUSES;
     }
 }

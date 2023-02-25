@@ -54,6 +54,8 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
                 Route::post('{typeId}', [ApiControllers\AnimalController::class, 'addAnimalTypeToAnimal']);
                 Route::put('/', [ApiControllers\AnimalController::class, 'updateAnimalTypeToAnimal']);
             });
+
+            Route::post('locations/{pointId}', [ApiControllers\AnimalVisitLocationController::class, 'createVisitLocation']);
         });
     });
 });
