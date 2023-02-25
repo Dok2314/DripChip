@@ -43,9 +43,17 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
     Route::group(['prefix' => 'animals'], function () {
         Route::get('search', [ApiControllers\AnimalController::class, 'searchAnimal']);
-        Route::get('{animalId}', [ApiControllers\AnimalController::class, 'getInfo']);
-        Route::put('{animalId}', [ApiControllers\AnimalController::class, 'updateAnimal']);
-        Route::delete('{animalId}', [ApiControllers\AnimalController::class, 'deleteAnimal']);
         Route::post('/', [ApiControllers\AnimalController::class, 'createAnimal']);
+
+        Route::group(['prefix' => '{animalId}'], function () {
+            Route::get('/', [ApiControllers\AnimalController::class, 'getInfo']);
+            Route::put('/', [ApiControllers\AnimalController::class, 'updateAnimal']);
+            Route::delete('/', [ApiControllers\AnimalController::class, 'deleteAnimal']);
+
+            Route::group(['prefix' => 'types'], function() {
+                Route::post('{typeId}', [ApiControllers\AnimalController::class, 'addAnimalTypeToAnimal']);
+                Route::put('/', [ApiControllers\AnimalController::class, 'updateAnimalTypeToAnimal']);
+            });
+        });
     });
 });

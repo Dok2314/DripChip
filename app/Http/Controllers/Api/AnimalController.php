@@ -35,20 +35,7 @@ class AnimalController extends BaseApiController
         $animal = Animal::find($animalId);
 
         if($animal) {
-            $response = [
-                'id' => $animal->id,
-                'animalTypes' => $animal->types->pluck('id')->toArray(),
-                'weight' => $animal->weight,
-                'length' => $animal->length,
-                'height' => $animal->height,
-                'gender' => $animal->gender,
-                'lifeStatus' => $animal->lifeStatus,
-                'chippingDateTime' => $animal->chippingDateTime ? Carbon::parse($animal->chippingDateTime)->format('Y-m-d\TH:i:sO') : '',
-                'chipperId' => $animal->account?->id,
-                'chippingLocationId' => $animal->location_point_id,
-                'visitedLocations' => $animal->visitedLocations->pluck('id')->toArray(),
-                'deathDateTime' => $animal->deathDateTime ? Carbon::parse($animal->deathDateTime)->format('Y-m-d\TH:i:sO') : '',
-            ];
+            $response = $this->responseArray($animal);
 
             return $this->sendResponse($response,'Animal successfully received!');
         }
@@ -58,7 +45,7 @@ class AnimalController extends BaseApiController
 
     public function searchAnimal(Request $request)
     {
-        dd('test');
+        dd('searchAnimal');
     }
 
     public function createAnimal(AnimalRequest $request)
@@ -78,7 +65,7 @@ class AnimalController extends BaseApiController
                 }
 
                 if(!in_array($animalType, $animalTypesIds->toArray())) {
-                    return $this->sendError('Animal type not found!', [], 400);
+                    return $this->sendError('Animal type not found!');
                 }
             }
         } else {
@@ -112,13 +99,13 @@ class AnimalController extends BaseApiController
         $account = Account::where('user_id', $request->chipperId)->first();
 
         if(is_null($account)) {
-            return $this->sendError('Account with chipperId = ' . $request->chipperId . ' not found!',[],400);
+            return $this->sendError('Account with chipperId = ' . $request->chipperId . ' not found!');
         }
 
         $locationPoint = LocationPoint::find($request->chippingLocationId);
 
         if(is_null($locationPoint)) {
-            return $this->sendError('Location point with chippingLocationId = ' . $request->chippingLocationId . ' not found!',[],400);
+            return $this->sendError('Location point with chippingLocationId = ' . $request->chippingLocationId . ' not found!');
         }
 
         $animal = Animal::create([
@@ -143,20 +130,7 @@ class AnimalController extends BaseApiController
             ]
         );
 
-        $response = [
-            'id' => $animal->id,
-            'animalTypes' => $animal->types->pluck('id')->toArray(),
-            'weight' => $animal->weight,
-            'length' => $animal->length,
-            'height' => $animal->height,
-            'gender' => $animal->gender,
-            'lifeStatus' => $animal->lifeStatus,
-            'chippingDateTime' => $animal->chippingDateTime ? Carbon::parse($animal->chippingDateTime)->format('Y-m-d\TH:i:sO') : '',
-            'chipperId' => $animal->chipperId,
-            'chippingLocationId' => $animal->location_point_id,
-            'visitedLocations' => $animal->visitedLocations->pluck('id')->toArray(),
-            'deathDateTime' => $animal->deathDateTime,
-        ];
+        $response = $this->responseArray($animal);
 
         return $this->sendResponse($response,'Animal successfully created!',201);
     }
@@ -198,29 +172,28 @@ class AnimalController extends BaseApiController
         $animal = Animal::find($animalId);
 
         if(is_null($animal)) {
-            return $this->sendError('Animal with id = ' . $animalId . ' not found.',[],400);
+            return $this->sendError('Animal with id = ' . $animalId . ' not found.');
         }
 
         $account = Account::find($request->chipperId);
 
         if(is_null($account)) {
-            return $this->sendError('Account with id = ' . $request->chipperId . ' not found.',[],400);
+            return $this->sendError('Account with id = ' . $request->chipperId . ' not found.');
         }
 
-        $locationPoint = LocationPoint::find($animal->location_point_id);
+        $locationPoint = LocationPoint::find($animal->chippingLocationId);
 
         if(is_null($locationPoint)) {
-            return $this->sendError('Location Point with id = ' . $animal->location_point_id . ' not found.',[],400);
+            return $this->sendError('Location Point with id = ' . $request->chippingLocationId . ' not found.');
         }
 
         if($animal->lifeStatus == 'DEAD' && $request->lifeStatus == 'ALIVE') {
             return $this->sendError('You cannot set this lifeStatus to an animal because it is dead.',[],400);
         }
 
-        // TODO:
-//        if() {
-//            return $this->sendError('The new chipping point is the same as the first visited location point!',[],400);
-//        }
+        if($request->chippingLocationId == $animal->visitedLocations->pluck('id')->first()) {
+            return $this->sendError('The new chipping point is the same as the first visited location point!',[],400);
+        }
 
         $animal->update([
             'weight' => $request->weight,
@@ -229,7 +202,7 @@ class AnimalController extends BaseApiController
             'gender' => $request->gender,
             'lifeStatus' => $request->lifeStatus,
             'chipperId' => $request->chipperId,
-            'chippingLocationId' => $request->chippingLocationId,
+            'location_point_id' => $request->chippingLocationId,
         ]);
 
         if($request->lifeStatus == 'DEAD' && $animal->lifeStatus == 'ALIVE') {
@@ -237,20 +210,7 @@ class AnimalController extends BaseApiController
             $animal->save();
         }
 
-        $response = [
-            'id' => $animal->id,
-            'animalTypes' => $animal->types->pluck('id')->toArray(),
-            'weight' => $animal->weight,
-            'length' => $animal->length,
-            'height' => $animal->height,
-            'gender' => $animal->gender,
-            'lifeStatus' => $animal->lifeStatus,
-            'chippingDateTime' => $animal->chippingDateTime ? Carbon::parse($animal->chippingDateTime)->format('Y-m-d\TH:i:sO') : '',
-            'chipperId' => $animal->chipperId,
-            'chippingLocationId' => $animal->location_point_id,
-            'visitedLocations' => $animal->visitedLocations->pluck('id')->toArray(),
-            'deathDateTime' => $animal->deathDateTime ? Carbon::parse($animal->deathDateTime)->format('Y-m-d\TH:i:sO') : null,
-        ];
+        $response = $this->responseArray($animal);
 
         return $this->sendResponse($response,'Animal successfully updated!');
     }
@@ -272,5 +232,107 @@ class AnimalController extends BaseApiController
         $animal->delete();
 
         return $this->sendResponse([],'Animal successfully deleted!');
+    }
+
+    public function addAnimalTypeToAnimal($animalId, $animalTypeId)
+    {
+        if(is_null($animalId) || $animalId <= 0) {
+            return $this->sendError('Incorrect animalId!',[],400);
+        }
+
+        if(is_null($animalTypeId) || $animalTypeId <= 0) {
+            return $this->sendError('Incorrect animalTypeId!',[],400);
+        }
+
+        $animal = Animal::find($animalId);
+
+        if(is_null($animal)) {
+            return $this->sendError('Animal with id = ' . $animalId . ' not found!');
+        }
+
+        $animalType = AnimalType::find($animalTypeId);
+
+        if(is_null($animalType)) {
+            return $this->sendError('Animal type with id = ' . $animalTypeId . ' not found!');
+        }
+
+        if($animal->types->contains($animalType)) {
+            return $this->sendError('The type of the animal with typeId already exists in the animal with animalId',[],409);
+        }
+
+        $animal->types()->attach($animalType);
+
+        $response = $this->responseArray($animal);
+
+        return $this->sendResponse($response,'Animal Type successfully added to animal');
+    }
+
+    public function updateAnimalTypeToAnimal($animalId, Request $request)
+    {
+        if(is_null($animalId) || $animalId <= 0) {
+            return $this->sendError('Incorrect animalId!',[],400);
+        }
+
+        if(is_null($request->oldTypeId) || $request->oldTypeId <= 0) {
+            return $this->sendError('Incorrect oldTypeId!',[],400);
+        }
+
+        if(is_null($request->newTypeId) || $request->newTypeId <= 0) {
+            return $this->sendError('Incorrect newTypeId!',[],400);
+        }
+
+        $animal = Animal::find($animalId);
+
+        if(is_null($animal)) {
+            return $this->sendError('Animal with id = ' . $animalId . ' not found!');
+        }
+
+        $oldAnimalType = AnimalType::find($request->oldTypeId);
+
+        if(is_null($oldAnimalType)) {
+            return $this->sendError('Animal type with oldAnimalType = ' . $request->oldTypeId . ' not found!');
+        }
+
+        $newAnimalType = AnimalType::find($request->newTypeId);
+
+        if(is_null($newAnimalType)) {
+            return $this->sendError('Animal type with newTypeId = ' . $request->newTypeId . ' not found!');
+        }
+
+        if(!$animal->types->contains($oldAnimalType)) {
+            return $this->sendError('Animal type with oldTypeId does not exist for animal with animalId!');
+        }
+
+        if($animal->types->contains($newAnimalType)) {
+            return $this->sendError('The animal type with newTypeId already exists in the animal with animalId',[],409);
+        }
+
+        if($animal->types->contains($oldAnimalType) && $animal->types->contains($newAnimalType)) {
+            return $this->sendError('The animal with animalId already has types with oldTypeId and newTypeId',[],409);
+        }
+
+        $animal->types()->updateExistingPivot($oldAnimalType, ['type_id' => $newAnimalType->getKey()]);
+
+        $response = $this->responseArray($animal);
+
+        return $this->sendResponse($response,'Animal type successfully updated to animal!');
+    }
+
+    protected function responseArray(Animal $animal)
+    {
+        return [
+            'id' => $animal->id,
+            'animalTypes' => $animal->types->pluck('id')->toArray(),
+            'weight' => $animal->weight,
+            'length' => $animal->length,
+            'height' => $animal->height,
+            'gender' => $animal->gender,
+            'lifeStatus' => $animal->lifeStatus,
+            'chippingDateTime' => $animal->chippingDateTime ? Carbon::parse($animal->chippingDateTime)->format('Y-m-d\TH:i:sO') : '',
+            'chipperId' => $animal->chipperId,
+            'chippingLocationId' => $animal->location_point_id,
+            'visitedLocations' => $animal->visitedLocations->pluck('id')->toArray(),
+            'deathDateTime' => $animal->deathDateTime ? Carbon::parse($animal->deathDateTime)->format('Y-m-d\TH:i:sO') : null,
+        ];
     }
 }
