@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Animal;
 use App\Models\LocationPoint;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AnimalVisitLocationController extends BaseApiController
 {
@@ -43,15 +44,16 @@ class AnimalVisitLocationController extends BaseApiController
             return $this->sendError('Attempting to add a location point that already has an animal!', [],400);
         }
 
-        $animal->visitedLocations()->syncWithoutDetaching([
-                $locationPoint->id => [
-                    'startDateTime' => now(),
-                    'endDateTime' => now()->addYears(rand(1, 10)),
-                ]
-        ]);
+        $lastId = DB::table('animal_visited_locations')
+            ->insertGetId([
+                'animal_id' => $animal->id,
+                'location_point_id' => $locationPoint->id,
+                'startDateTime' => now(),
+                'endDateTime' => now()->addYears(rand(1, 10)),
+            ]);
 
         $response = [
-            'id' => $locationPoint->id,
+            'id' => $lastId,
             'dateTimeOfVisitLocationPoint' => '',
             'locationPointId' => $locationPoint->id,
         ];
