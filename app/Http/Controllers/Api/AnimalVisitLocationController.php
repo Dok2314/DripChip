@@ -44,13 +44,14 @@ class AnimalVisitLocationController extends BaseApiController
             return $this->sendError('Attempting to add a location point that already has an animal!', [],400);
         }
 
-        $lastId = DB::table('animal_visited_locations')
-            ->insertGetId([
-                'animal_id' => $animal->id,
-                'location_point_id' => $locationPoint->id,
+        $animal->visitedLocations()->syncWithoutDetaching([
+            $locationPoint->id => [
                 'startDateTime' => now(),
                 'endDateTime' => now()->addYears(rand(1, 10)),
-            ]);
+            ]
+        ]);
+
+        $lastId = DB::getPdo()->lastInsertId();
 
         $response = [
             'id' => $lastId,
