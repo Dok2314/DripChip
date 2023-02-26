@@ -22,10 +22,10 @@ class Animal extends Model
 
     protected $table = 'animals';
 
-    protected $casts = [
-        'chippingDateTime' => 'datetime',
-        'deathDateTime' => 'datetime',
-    ];
+//    protected $casts = [
+//        'chippingDateTime' => 'datetime',
+//        'deathDateTime' => 'datetime',
+//    ];
 
     protected $fillable = [
         'weight', 'length', 'height', 'gender', 'lifeStatus', 'chipperId',

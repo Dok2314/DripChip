@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
             Route::group(['prefix' => 'types'], function() {
                 Route::post('{typeId}', [ApiControllers\AnimalController::class, 'addAnimalTypeToAnimal']);
+                Route::delete('{typeId}', [ApiControllers\AnimalController::class, 'deleteAnimalTypeFromAnimal']);
                 Route::put('/', [ApiControllers\AnimalController::class, 'updateAnimalTypeToAnimal']);
             });
 
