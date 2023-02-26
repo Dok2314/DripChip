@@ -170,7 +170,7 @@ class AnimalController extends BaseApiController
             return $this->sendError('Account with id = ' . $request->chipperId . ' not found.');
         }
 
-        $locationPoint = LocationPoint::find($animal->chippingLocationId);
+        $locationPoint = LocationPoint::find($request->chippingLocationId);
 
         if(is_null($locationPoint)) {
             return $this->sendError('Location Point with id = ' . $request->chippingLocationId . ' not found.');
@@ -184,6 +184,13 @@ class AnimalController extends BaseApiController
             return $this->sendError('The new chipping point is the same as the first visited location point!',[],400);
         }
 
+        if($request->lifeStatus == 'DEAD' && $animal->lifeStatus == 'ALIVE') {
+            $animal->update([
+                'lifeStatus' => 'DEAD',
+                'deathDateTime' => now(),
+            ]);
+        }
+
         $animal->update([
             'weight' => $request->weight,
             'length' => $request->length,
@@ -193,11 +200,6 @@ class AnimalController extends BaseApiController
             'chipperId' => $request->chipperId,
             'location_point_id' => $request->chippingLocationId,
         ]);
-
-        if($request->lifeStatus == 'DEAD' && $animal->lifeStatus == 'ALIVE') {
-            $animal->deathDateTime = now();
-            $animal->save();
-        }
 
         $response = $this->responseArray($animal);
 
@@ -250,6 +252,7 @@ class AnimalController extends BaseApiController
         }
 
         $animal->types()->attach($animalType);
+        $animal->refresh();
 
         $response = $this->responseArray($animal);
 
@@ -301,10 +304,46 @@ class AnimalController extends BaseApiController
         }
 
         $animal->types()->updateExistingPivot($oldAnimalType, ['type_id' => $newAnimalType->getKey()]);
+        $animal->refresh();
 
         $response = $this->responseArray($animal);
 
         return $this->sendResponse($response,'Animal type successfully updated to animal!');
+    }
+
+    public function deleteAnimalTypeFromAnimal($animalId, $typeId)
+    {
+        if(is_null($animalId) || $animalId <= 0) {
+            return $this->sendError('Incorrect animalId',[],400);
+        }
+
+        if(is_null($typeId) || $typeId <= 0) {
+            return $this->sendError('Incorrect typeId',[],400);
+        }
+
+        $animal = Animal::find($animalId);
+
+        if(is_null($animal)) {
+            return $this->sendError('Animal with id = ' . $animalId . ' not found!');
+        }
+
+        $animalType = AnimalType::find($typeId);
+
+        if(is_null($animalType)) {
+            return $this->sendError('Animal type with id = ' . $typeId . ' not found!');
+        }
+
+        if(!$animal->types->contains($animalType)) {
+            return $this->sendError('The animal with animalId does not have a type with typeId!');
+        }
+
+        if($animal->types->count() == 1 && $animal->types->contains($animalType)) {
+            return $this->sendError('The animal has only one type and that is the type with typeId',[],400);
+        }
+
+        $animal->types()->detach($animalType);
+
+        return $this->sendResponse([],'Animal type was successfully removed from an animal!');
     }
 
     protected function responseArray(Animal $animal)

@@ -52,10 +52,16 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
             Route::group(['prefix' => 'types'], function() {
                 Route::post('{typeId}', [ApiControllers\AnimalController::class, 'addAnimalTypeToAnimal']);
+                Route::delete('{typeId}', [ApiControllers\AnimalController::class, 'deleteAnimalTypeFromAnimal']);
                 Route::put('/', [ApiControllers\AnimalController::class, 'updateAnimalTypeToAnimal']);
             });
 
-            Route::post('locations/{pointId}', [ApiControllers\AnimalVisitLocationController::class, 'createVisitLocation']);
+            Route::group(['prefix' => 'locations'], function () {
+                Route::post('{pointId}', [ApiControllers\AnimalVisitLocationController::class, 'createVisitedLocation']);
+                Route::get('/', [ApiControllers\AnimalVisitLocationController::class, 'getVisitedLocations']);
+                Route::put('/',[ApiControllers\AnimalVisitLocationController::class, 'updateVisitedLocations']);
+                Route::delete('{visitedPointId}', [ApiControllers\AnimalVisitLocationController::class, 'deleteVisitedLocation']);
+            });
         });
     });
 });
