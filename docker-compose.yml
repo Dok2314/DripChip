@@ -6,6 +6,7 @@ services:
             context: .
             dockerfile: Dockerfile
         image: php:8.0-fpm
+        platform: linux/amd64
         container_name: app
         restart: unless-stopped
         tty: true
@@ -21,6 +22,7 @@ services:
     #Nginx Service
     webserver:
         image: nginx:alpine
+        platform: linux/amd64
         container_name: webserver
         restart: unless-stopped
         tty: true
@@ -35,6 +37,7 @@ services:
     #MySQL Service
     db:
         image: mysql:5.7.34
+        platform: linux/amd64
         container_name: db
         restart: unless-stopped
         tty: true
