@@ -20,10 +20,10 @@ services:
         networks:
             - app-network
     #Nginx Service
-    webserver:
+    webapi:
         image: nginx:alpine
         platform: linux/amd64
-        container_name: webserver
+        container_name: webapi
         restart: unless-stopped
         tty: true
         ports:
@@ -39,11 +39,11 @@ services:
         image: mrexpen/planet_olymp_phase1
         pull_policy: always
         depends_on:
-            - webserver
+            - webapi
         ports:
             - "8090:8080"
         environment:
-            SERVER_URL: http://localhost:80
+            SERVER_URL: http://webapi:80
             STAGE: all
             # all - запуск всех тестов из трёх доступных этапов
             # 0, 1 или 2 - запуск тестов для соответствующего этапа

@@ -212,8 +212,6 @@ class AnimalController extends BaseApiController
             return $this->sendError('Incorrect animalId', [],400);
         }
 
-        //TODO: Животное покинуло локацию чипирования, при этом есть другие посещенные точки
-
         $animal = Animal::find($animalId);
 
         if(is_null($animal)) {

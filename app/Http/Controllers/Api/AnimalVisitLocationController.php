@@ -98,8 +98,6 @@ class AnimalVisitLocationController extends BaseApiController
             return $this->sendError('Animal with id = ' . $animalId . ' not found!');
         }
 
-        // TODO: доделать
-
         $response = [
             'id' => '',
             'dateTimeOfVisitLocationPoint' => '',
@@ -123,10 +121,8 @@ class AnimalVisitLocationController extends BaseApiController
             return $this->sendError('Incorrect locationPointId', [], 400);
         }
 
-        // TODO:
-
         $response = [
-            'id' => '',
+            'id' => $animalId,
             'dateTimeOfVisitLocationPoint' => '',
             'locationPointId' => '',
         ];
